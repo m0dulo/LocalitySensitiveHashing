@@ -10,7 +10,7 @@ endif()
 include_directories(src/include)
 include_directories(src/3rd_party/Argumenet_helper)
 set(SRCS src/include/dataloader.h
-    src/include/utlis.h
+    src/include/utilis.h
     src/3rd_party/Argumenet_helper/Argument_helper.h
     src/main.cpp)
 add_executable(lsh ${SRCS})
