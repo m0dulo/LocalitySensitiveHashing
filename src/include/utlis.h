@@ -8,7 +8,7 @@
 #include "iostream"
 
 using namespace std;
-class LyxUtlis {
+class LyxUtilis {
 public:
     template<class T>
     static void _print(T arg) {
@@ -31,6 +31,12 @@ public:
             last_pos = s.find_first_not_of(delimiter, pos);
             pos = s.find_first_of(delimiter, last_pos);
         }
+    }
+
+    static void trim(std::string& s) {
+        s.erase(s.find_last_not_of(".") + 1);
+        s.erase(s.find_last_not_of("!") + 1);
+        s.erase(s.find_last_not_of(" ") + 1);
     }
 };
 

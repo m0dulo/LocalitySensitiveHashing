@@ -1,14 +1,11 @@
-#include <iostream>
-#include <dataloader.h>
-#include <utlis.h>
 #include <list>
 #include <sstream>
 #include <ctime>
 #include <cstdlib>
 #include <unordered_map>
-#include "Argument_helper.h"
-#include <algorithm>
 #include <set>
+#include "Argument_helper.h"
+#include "dataloader.h"
 
 using namespace std;
 
@@ -61,7 +58,7 @@ int main(int argc, char* argv[]) {
     ah.process(argc, argv);
     Dataloader load(rawData);
     auto cleanDataBuffer = load.loadData();
-    LyxUtlis::log("Loaded data size: ", cleanDataBuffer.size());
+    LyxUtilis::log("Loaded data size: ", cleanDataBuffer.size());
     ofstream ofs;
     ofs.open(hashData);
     vector<uint32_t> shingles;
@@ -77,7 +74,7 @@ int main(int argc, char* argv[]) {
         ofs << "\n";
     }
     ofs.close();
-    LyxUtlis::log("Shingles size: ", shingles.size());
+    LyxUtilis::log("Shingles size: ", shingles.size());
 
     vector<string> matrix;
     for (size_t i = 0; i < shingles.size(); ++i) {
@@ -91,14 +88,13 @@ int main(int argc, char* argv[]) {
     int cnt = 1;
     while (getline(in , line)) {
         vector<string> tokens;
-        LyxUtlis::split(line, tokens, " ");
+        LyxUtilis::split(line, tokens, " ");
         int intRes = 0;
         for (string &token : tokens) {
             int index = 0;
             std::stringstream buffer(token);
             buffer >> intRes;
             intRes = atoi(token.c_str());
-            //cout << intRes << " ";
             auto iter = find(shingles.begin(), shingles.end(), intRes);
             index =  iter - shingles.begin();
             matrix.at(index) += to_string(cnt);
@@ -107,11 +103,11 @@ int main(int argc, char* argv[]) {
         cnt++;
     }
     in.close();
-//    for (size_t i = 0 ; i < matrix.size(); ++i) {
-//        cout << "Matrix " << i << " is: " << matrix.at(i);
-//        cout << endl;
-//    }
-    LyxUtlis::log("Shingling Done!");
+
+    // for (size_t i = 0 ; i < matrix.size(); ++i) {
+    //    LyxUtilis::log("Matrix ", i , " is ", matrix.at(i), "\n");
+    // }
+    LyxUtilis::log("Shingling Done!");
 
     int signMatrix[100][10000];
     int c = 40423;
@@ -136,13 +132,11 @@ int main(int argc, char* argv[]) {
     for (std::size_t i = 0; i < 100; ++i) {
         for (std::size_t j = 0; j < matrix.size(); ++j) {
             hash = (a[i] * (j + 1) + b[i]) % c;
-            LyxUtlis::split(matrix.at(j), strs, " ");
+            LyxUtilis::split(matrix.at(j), strs, " ");
             int number;
             for (string& s : strs) {
-//                cout << s<< " ";
                 if (s != "") {
                     number = atoi(s.c_str()) - 1;
-//                    cout << number << " ";
                 }
                 if (signMatrix[i][number] > hash) {
                     signMatrix[i][number] = hash;
@@ -151,7 +145,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    LyxUtlis::log("MiniHash Done!");
+    LyxUtilis::log("MiniHash Done!");
 
     vector<string> rawDataBuffer;
     ifstream raw;
@@ -172,12 +166,12 @@ int main(int argc, char* argv[]) {
             if (buckets.find(code) == buckets.end()) {
                 buckets[code] = m + 1;
             } else {
-                cout << buckets[code] << "号文档和" << m + 1 << "号文档是相似文档" << endl;
-                cout << rawDataBuffer.at(buckets[code] - 1) << endl;
-                cout << rawDataBuffer.at(m) << endl;
-                cout << "Jaccard相似度: " << computeJaccard(cleanDataBuffer.at(buckets[code] - 1), cleanDataBuffer.at(m)) << endl;
-                cout << "签名矩阵相似度: " << computeSignMatrix(signMatrix, buckets[code] - 1, m) << endl << endl;
-                cout << endl;
+                LyxUtilis::log( buckets[code], "号文档和", m + 1, "号文档是相似文档");
+                LyxUtilis::log(rawDataBuffer.at(buckets[code] - 1));
+                LyxUtilis::log(rawDataBuffer.at(m));
+                LyxUtilis::log("Jaccard相似度: ", computeJaccard(cleanDataBuffer.at(buckets[code] - 1), cleanDataBuffer.at(m)));
+                LyxUtilis::log("签名矩阵相似度: ", computeSignMatrix(signMatrix, buckets[code] - 1, m), "\n");
+                
             }
         }
     }

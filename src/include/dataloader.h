@@ -9,8 +9,8 @@
 #include "iostream"
 #include "string"
 #include "algorithm"
+#include "utilis.h"
 #include "vector"
-#include "utlis.h"
 #include "regex"
 
 class Dataloader {
@@ -56,7 +56,7 @@ public:
         std::vector<std::vector<std::string>> res;
         res.clear();
         _in.open(_file_name);
-        LyxUtlis::log("Loading data ...");
+        LyxUtilis::log("Loading data ...");
         if (!_in) {
             std::cout << "open file fail!" << std::endl;
         } else {
