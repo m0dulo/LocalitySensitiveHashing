@@ -7,6 +7,8 @@
 #include <cstdlib>
 #include <unordered_map>
 #include "Argument_helper.h"
+#include <algorithm>
+#include <set>
 
 using namespace std;
 
@@ -19,6 +21,34 @@ uint32_t BKDRHash(const string& s) {
    return hash;
 }
 
+double computeJaccard(const vector<string>& s1, const vector<string>& s2) {
+    set<string> set1;
+    set<string> set2;
+    set<string> intersectionRes;
+    set<string> unionRes;
+    for (size_t i = 0; i < s1.size(); ++i) {
+        set1.insert(s1.at(i));
+    }
+    for (size_t j = 0; j < s2.size(); ++j) {
+        set2.insert(s2.at(j));
+    }
+    set_intersection(begin(set1), end(set1), begin(set2), end(set2)
+            , inserter(intersectionRes, begin(intersectionRes)));
+    set_union(begin(set1), end(set1), begin(set2), end(set2)
+            , inserter(unionRes, begin(unionRes)));
+    return (1.0 * intersectionRes.size()) / unionRes.size();
+}
+
+double computeSignMatrix(int signMatrix[100][10000]
+    , int column1, int column2) {
+        int res = 0;
+        for (size_t i = 0; i < 100; ++i) {
+            if (signMatrix[i][column1] == signMatrix[i][column2]) {
+                res++;
+            }
+        }
+        return res * 1.0 / 100; 
+}
 
 int main(int argc, char* argv[]) {
     string rawData = "";
@@ -30,12 +60,12 @@ int main(int argc, char* argv[]) {
          "named_string", hashData);
     ah.process(argc, argv);
     Dataloader load(rawData);
-    auto dataBuffer = load.loadData();
-    LyxUtlis::log("Loaded data size: ", dataBuffer.size());
+    auto cleanDataBuffer = load.loadData();
+    LyxUtlis::log("Loaded data size: ", cleanDataBuffer.size());
     ofstream ofs;
     ofs.open(hashData);
     vector<uint32_t> shingles;
-    for (auto& line : dataBuffer) {
+    for (auto& line : cleanDataBuffer) {
         int index = 0;
         for (auto &token : line) {
             auto hashValue = BKDRHash(token);
@@ -90,8 +120,8 @@ int main(int argc, char* argv[]) {
 
     srand(time(nullptr));
     for (int i = 0 ; i < 100; ++i) {
-        a[i] = rand() % 40322 + 40322;
-        b[i] = rand() % 40322 + 40322;
+        a[i] = (rand() % 40423 + 40423) % shingles.size();
+        b[i] = (rand() % 40423 + 40423) % shingles.size();
     }
 
     for (size_t i = 0; i < 100; ++i) {
@@ -123,36 +153,33 @@ int main(int argc, char* argv[]) {
 
     LyxUtlis::log("MiniHash Done!");
 
-    vector<string> vs;
+    vector<string> rawDataBuffer;
     ifstream raw;
     raw.open(rawData);
     string raw_line;
     while(getline(raw, raw_line)) {
-        vs.emplace_back(raw_line);
+        rawDataBuffer.emplace_back(raw_line);
     }
     raw.close();
 
-    unordered_map<string, int> ht;
-    unordered_map<string, int> hh;
+    unordered_map<string, int> buckets;
     for (std::size_t i = 0; i < 20; ++i) {
         for (std::size_t m = 0; m < 10000; ++m) {
             string code = "";
             for (std::size_t j = 0; j < 5; ++j) {
                 code += to_string(signMatrix[i * 5 + j][m]);
             }
-            if (ht.find(code) == ht.end()) {
-                ht[code] = 1;
-                hh[code] = m + 1;
+            if (buckets.find(code) == buckets.end()) {
+                buckets[code] = m + 1;
             } else {
-                int l = ht[code];
-                ht[code] = l + 1;
-                cout << hh[code] << "号文档和" << m + 1 << "号文档是相似文档";
-                cout << vs.at(hh[code] - 1) << endl;
-                cout << vs.at(m) << endl;
+                cout << buckets[code] << "号文档和" << m + 1 << "号文档是相似文档" << endl;
+                cout << rawDataBuffer.at(buckets[code] - 1) << endl;
+                cout << rawDataBuffer.at(m) << endl;
+                cout << "Jaccard相似度: " << computeJaccard(cleanDataBuffer.at(buckets[code] - 1), cleanDataBuffer.at(m)) << endl;
+                cout << "签名矩阵相似度: " << computeSignMatrix(signMatrix, buckets[code] - 1, m) << endl << endl;
                 cout << endl;
             }
         }
-        ht.clear();
     }
 
     return 0;

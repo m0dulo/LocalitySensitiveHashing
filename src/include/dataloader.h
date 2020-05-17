@@ -19,21 +19,6 @@ private:
 
     std::ifstream _in;
 
-    void replaceAll(std::string& str, const std::string& from, const std::string& to) {
-        if(from.empty())
-            return;
-        size_t start_pos = 0;
-        while((start_pos = str.find(from, start_pos)) != std::string::npos) {
-            str.replace(start_pos, from.length(), to);
-            start_pos += to.length();
-        }
-    }
-
-public:
-
-    Dataloader() = default;
-    Dataloader(std::string name) : _file_name(name) {}
-
     void split(const std::string& s, std::vector<std::string>& tokens,
                const std::string& delimiter = " ") {
         tokens.clear();
@@ -51,6 +36,21 @@ public:
         s.erase(s.find_last_not_of("!") + 1);
         s.erase(s.find_last_not_of(" ") + 1);
     }
+    
+    void replaceAll(std::string& str, const std::string& from, const std::string& to) {
+        if(from.empty())
+            return;
+        size_t start_pos = 0;
+        while((start_pos = str.find(from, start_pos)) != std::string::npos) {
+            str.replace(start_pos, from.length(), to);
+            start_pos += to.length();
+        }
+    }
+
+public:
+
+    Dataloader() = default;
+    Dataloader(std::string name) : _file_name(name) {}
 
     std::vector<std::vector<std::string>> loadData() {
         std::vector<std::vector<std::string>> res;
